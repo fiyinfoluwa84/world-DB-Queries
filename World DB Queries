@@ -1,0 +1,47 @@
+---1. Retrieve all countries whose capital city has a population
+greater than the country average city population
+
+select c.Name AS Country
+,d.Name As Capital
+,d.Population As Population
+from country c
+inner join city d
+on c.Capital=d.ID
+where d.Population > 
+(select Avg(city.Population)
+from city
+WHERE city.CountryCode = c.Code);
+
+
+---2. Identify languages spoken in more than 3 countries where
+it is official
+select cl.Language, count(c.Name) As country_count
+from countrylanguage cl
+inner join country c
+on cl.CountryCode=c.Code
+where cl.IsOfficial='T' 
+group by cl.Language
+having count(c.Name) > 3
+order by country_count desc;
+
+
+---3. Write a query to find capitals that are not among top 3 largest
+cities in their country.
+select c1.Name AS CapitalName, co.Name AS country_name
+from city c1
+inner join country co 
+on c1.CountryCode = co.Code
+where c1.ID = co.Capital
+and (
+select COUNT(*)
+from city c2
+where c2.CountryCode = c1.CountryCode
+and c2.Population > c1.Population
+  ) >= 3;
+
+
+---4. Rank Continents by Population Density
+select c1.Continent, sum(c1.Population)/sum(c1.SurfaceArea) As populationDensity
+from country c1
+group by c1.Continent
+order by populationDensity desc
